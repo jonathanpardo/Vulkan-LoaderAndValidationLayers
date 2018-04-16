@@ -3434,17 +3434,23 @@ bool PreCallValidateCreateImageView(layer_data *device_data, const VkImageViewCr
         if (image_flags & VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT) {
             if ((!GetDeviceExtensions(device_data)->vk_khr_maintenance2 ||
                  !(image_flags & VK_IMAGE_CREATE_BLOCK_TEXEL_VIEW_COMPATIBLE_BIT_KHR))) {
-                // Format MUST be compatible (in the same format compatibility class) as the format the image was created with
-                if (FormatCompatibilityClass(image_format) != FormatCompatibilityClass(view_format)) {
-                    std::stringstream ss;
-                    ss << "vkCreateImageView(): ImageView format " << string_VkFormat(view_format)
-                       << " is not in the same format compatibility class as image (" << HandleToUint64(create_info->image)
-                       << ")  format " << string_VkFormat(image_format)
-                       << ".  Images created with the VK_IMAGE_CREATE_MUTABLE_FORMAT BIT "
-                       << "can support ImageViews with differing formats but they must be in the same compatibility class.";
-                    skip |= log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0,
-                                    VALIDATION_ERROR_0ac007f4, "%s", ss.str().c_str());
-                }
+                //if (FormatIsMultiplane(image_format)) {
+                //    // View format must match the multiplane compatible format
+                //    uint32_t plane = ;
+
+                //} else {
+                    // Format MUST be compatible (in the same format compatibility class) as the format the image was created with
+                    if (FormatCompatibilityClass(image_format) != FormatCompatibilityClass(view_format)) {
+                        std::stringstream ss;
+                        ss << "vkCreateImageView(): ImageView format " << string_VkFormat(view_format)
+                           << " is not in the same format compatibility class as image (" << HandleToUint64(create_info->image)
+                           << ")  format " << string_VkFormat(image_format)
+                           << ".  Images created with the VK_IMAGE_CREATE_MUTABLE_FORMAT BIT "
+                           << "can support ImageViews with differing formats but they must be in the same compatibility class.";
+                        skip |= log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0,
+                                        VALIDATION_ERROR_0ac007f4, "%s", ss.str().c_str());
+                    }
+              // }
             }
         } else {
             // Format MUST be IDENTICAL to the format the image was created with
